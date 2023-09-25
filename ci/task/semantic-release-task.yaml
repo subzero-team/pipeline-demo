@@ -1,0 +1,70 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: semantic-release
+spec:
+  workspaces:
+    - name: source
+    - name: ssh-directory
+  params:
+    - name: verbose
+      description: Log the commands that are executed during the operation.
+      type: string
+      default: "true"
+    - name: userHome
+      description: Absolute path to the user's home directory.
+      type: string
+      default: "/root"  
+    - name: NPM_TOKEN
+      description: NPM token for publishing packages (if needed)
+      type: string
+      default: ""
+  steps:
+    - name: semantic-release
+      image: timbru31/java-node:17-alpine-jdk-18
+      workingDir: /workspace/source
+      env:
+      - name: PARAM_USER_HOME
+        value: $(params.userHome)      
+      - name: PARAM_VERBOSE
+        value: $(params.verbose)      
+      - name: WORKSPACE_SSH_DIRECTORY_BOUND
+        value: $(workspaces.ssh-directory.bound)
+      - name: WORKSPACE_SSH_DIRECTORY_PATH
+        value: $(workspaces.ssh-directory.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+
+        if [ "${PARAM_VERBOSE}" = "true" ] ; then
+          set -x
+        fi
+
+        echo "# set ssh credential for git"
+        if [ "${WORKSPACE_SSH_DIRECTORY_BOUND}" = "true" ] ; then
+          cp -R "${WORKSPACE_SSH_DIRECTORY_PATH}" "${PARAM_USER_HOME}"/.ssh
+          chmod 700 "${PARAM_USER_HOME}"/.ssh
+          chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
+        fi
+
+        echo "# semantic release: ls -al ."
+        ls -al .
+        echo "# install git"
+        apk update
+        apk add git
+        echo "check git status on main"
+        git checkout main
+        git status
+
+        echo "# install docker"
+        wget -q https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz -O /tmp/docker.tar.gz
+        tar -xzf /tmp/docker.tar.gz -C /tmp/
+        cp /tmp/docker/docker* /usr/local/bin
+        chmod +x /usr/local/bin/docker*
+
+        export GITHUB_TOKEN="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"
+
+        echo "# install semantic plugin"
+        npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer semantic-release-gitlab-registry @semantic-release/release-notes-generator @semantic-release/gitlab @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
+        echo "# run semantic-release "
+        npx semantic-release@20 --repository-url "https://github.com/corollo/demo-app.git"

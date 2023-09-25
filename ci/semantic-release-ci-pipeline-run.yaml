@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: semantic-release-ci-
+spec:
+  pipelineRef:
+    name: semantic-release-ci
+  # podTemplate:
+  #   securityContext:
+  #     fsGroup: 65532
+  workspaces:
+  - name: maven-settings
+    emptyDir: {}
+  - name: shared-data
+    persistentvolumeclaim:
+      claimName: code-source-pvc
+  - name: maven-local-m2
+    persistentvolumeclaim:
+      claimName: maven-local-m2-pvc
+  - name: git-credentials
+    secret:
+      secretName: git-credentials
+  params:
+  - name: repo-url
+    value: git@github.com:corollo/demo-app.git
+  - name: revision
+    value: main
