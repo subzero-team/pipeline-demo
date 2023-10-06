@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: semantic-release-taskrun-  
+spec:
+  taskRef:
+    name: semantic-release
+  workspaces:
+  - name: source
+    persistentvolumeclaim:
+      claimName: code-source-pvc
+  - name: ssh-directory
+    secret:
+      secretName: git-credentials
+  serviceAccountName: pipeline-service-account
+  params:
+  - name: repo-url
+    value: git@github.com:corollo/demo-app.git
+  - name: revision
+    value: main
+  - name: repositoryUrl
+    value: "https://github.com/corollo/demo-app.git"
+  - name: iacRepositoryUrl
+    value: git@github.com:corollo/demo-app-iac.git    

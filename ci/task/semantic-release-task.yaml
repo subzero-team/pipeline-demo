@@ -15,8 +15,8 @@ spec:
       description: Absolute path to the user's home directory.
       type: string
       default: "/root"  
-    - name: NPM_TOKEN
-      description: NPM token for publishing packages (if needed)
+    - name: repositoryUrl
+      description: the project repository Url 
       type: string
       default: ""
   steps:
@@ -32,6 +32,8 @@ spec:
         value: $(workspaces.ssh-directory.bound)
       - name: WORKSPACE_SSH_DIRECTORY_PATH
         value: $(workspaces.ssh-directory.path)
+      - name: REPOSITORY_URL
+        value: $(params.repositoryUrl)        
       script: |
         #!/usr/bin/env sh
         set -eu
@@ -47,13 +49,19 @@ spec:
           chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
         fi
 
+        # echo "test git"
+        # git status
+        # echo "test docker"
+        # docker version
+
         echo "# semantic release: ls -al ."
         ls -al .
         echo "# install git"
         apk update
         apk add git
-        echo "check git status on main"
-        git checkout main
+        
+        echo "check git status on pre/beta"
+        git checkout pre/beta
         git status
 
         echo "# install docker"
@@ -63,8 +71,19 @@ spec:
         chmod +x /usr/local/bin/docker*
 
         export GITHUB_TOKEN="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"
+        export CI=true
+        export CI_REGISTRY_USER=corollo
+        export CI_REGISTRY_PASSWORD=dckr_pat_q94cDdf7jjy8rr-ofAgcUrfyf3c
+        export CI_REGISTRY=corollo
+        export CI_REGISTRY_IMAGE=$CI_REGISTRY/demo-app
+
+        #echo "# docker login on $CI_REGISTRY"
+        #docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        #echo "# docker build $CI_REGISTRY_IMAGE:latest "
+        #docker build -t $CI_REGISTRY_IMAGE:latest .
 
         echo "# install semantic plugin"
-        npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer semantic-release-gitlab-registry @semantic-release/release-notes-generator @semantic-release/gitlab @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
+        npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
         echo "# run semantic-release "
-        npx semantic-release@20 --repository-url "https://github.com/corollo/demo-app.git"
+        npx semantic-release@20 --repository-url ${REPOSITORY_URL}
+        echo "end"

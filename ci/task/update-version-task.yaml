@@ -1,109 +1,88 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: build-git
+  name: update-version
 spec:
-  inputs:
-    params:
-      - name: BUILDER_IMAGE
-        description: The location of the buildah builder image.
-        default: quay.io/buildah/stable:v1.11.0
-      - name: DOCKERFILE
-        description: Path to the Dockerfile to build.
-        default: ./Dockerfile
-      - name: CONTEXT
-        description: Path to the directory to use as context.
-        default: .
-      - name: TLSVERIFY
-        description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
-        default: "false"
-      - name: GIT_REPOSITORY
-        description: Git repository containing manifest files to update
-      - name: GIT_EMAIL
-        default: pipeline@example.com
-      - name: GIT_NAME
-        default: Pipeline Operator
-      - name: GIT_MANIFEST_DIR
-        default: yamls/ocp
-      - name: TOOL_IMAGE
-        default: docker.io/csantanapr/helm-kubectl-curl-git-jq-yq
-    resources:
-      - name: source
-        type: git
-      - name: image
-        type: image
+  workspaces:
+    - name: code-source
+    - name: iac-source
+    - name: ssh-directory
+  params:
+    - name: iacRepositoryUrl
+      description: Git repository containing manifest files to update
+    - name: userHome
+      description: Absolute path to the user's home directory.
+      type: string
+      default: "/root"      
   steps:
-    - name: build
-      image: $(inputs.params.BUILDER_IMAGE)
-      workingDir: /workspace/source
-      command: ["/bin/bash"]
-      args:
-        - -c
-        - |
-          set -e
-          SHORT_GIT_HASH="$(cat .git/FETCH_HEAD | awk '{print substr($1,0,7)}')"
-          NEW_IMAGE_ID="$(inputs.resources.image.url):$SHORT_GIT_HASH"
-          NEW_IMAGE_ID="$(echo $NEW_IMAGE_ID | sed s/\$NAMESPACE/$NAMESPACE/)"
-          echo "SHORT_GIT_HASH = $SHORT_GIT_HASH"
-          echo "Building Image $NEW_IMAGE_ID"
-          buildah bud --tls-verify="$(inputs.params.TLSVERIFY)" --layers -f "$(inputs.params.DOCKERFILE)" -t "$NEW_IMAGE_ID" "$(inputs.params.CONTEXT)"
-          echo "Pushing Image $NEW_IMAGE_ID"
-          buildah push --tls-verify="$(inputs.params.TLSVERIFY)" "$NEW_IMAGE_ID" "docker://$NEW_IMAGE_ID"
-          echo "NEW_IMAGE_ID=$NEW_IMAGE_ID" >> /workspace/env-config
-      securityContext:
-        privileged: true
-      volumeMounts:
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
+    # - name: get-latest-tag
+    #   image: alpine/git
+    #   workingDir: /workspace/code-source
+    #   script: |
+    #     #!/usr/bin/env sh
+    #     set -x
+    #     ls -l
+    #     # Recupera l'ultimo tag
+    #     latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+    #     echo "Latest Tag: $latest_tag"
+    #     echo "export latest_tag=$latest_tag" > /workspace/iac-source/latest_tag.env      
+    - name: clone-iac-repo
+      image: alpine/git
+      workingDir: /workspace/iac-source
       env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-    - name: git-push
-      image: $(inputs.params.TOOL_IMAGE)
-      env:
-        - name: GIT_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: git-infra-secret
-              key: username
-              optional: true
-        - name: GIT_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: git-infra-secret
-              key: token
-              optional: true
-      command: ["/bin/bash"]
-      args:
-        - -c
-        - |
-          set -eu
-          echo Load environment variables from previous steps
-          source /workspace/env-config
-          git config --global user.email "$(inputs.params.GIT_EMAIL)"
-          git config --global user.name "$(inputs.params.GIT_NAME)"
-          git clone --branch master --depth 1 https://${GIT_USERNAME}:${GIT_TOKEN}@$(inputs.params.GIT_REPOSITORY) repo
-          cd "repo/$(inputs.params.GIT_MANIFEST_DIR)"
-          ls -l
-          echo old value:
-          cat deployment.yaml | yq r - 'spec.template.spec.containers[0].image'
-          echo replacing with new value:
-          echo $NEW_IMAGE_ID
-          yq w --inplace deployment.yaml 'spec.template.spec.containers[0].image' "$NEW_IMAGE_ID"
-          echo verifying new value
-          yq r deployment.yaml 'spec.template.spec.containers[0].image'
-          if ! git diff-index --quiet HEAD --; then
-            git status
-            git add .
-            git commit -m "deployment updated by tekton pipeline running on $(hostname)"
+      - name: IAC_REPOSITORY_URL
+        value: $(params.iacRepositoryUrl)
+      - name: PARAM_USER_HOME
+        value: $(params.userHome)
+      - name: WORKSPACE_SSH_DIRECTORY_BOUND
+        value: $(workspaces.ssh-directory.bound)
+      - name: WORKSPACE_SSH_DIRECTORY_PATH
+        value: $(workspaces.ssh-directory.path)         
+      script: |
+        #!/usr/bin/env sh
+        set -x
+
+        export projectDir=./demo-app-iac
+        export versionFile=/workspace/code-source/latest_tag.env
+
+        # controllo se esiste il file della versione
+        if [ -e "${versionFile}" ]; then
+  
+          echo "recupero la nuova versione dal file ${versionFile}"
+          source /workspace/code-source/latest_tag.env
+          echo "get the latest_tag: ${latest_tag}"
+
+          if [[ ${latest_tag} == *"beta"* ]]; then
+  
+            if [ "${WORKSPACE_SSH_DIRECTORY_BOUND}" = "true" ] ; then
+              cp -R "${WORKSPACE_SSH_DIRECTORY_PATH}" "${PARAM_USER_HOME}"/.ssh
+              chmod 700 "${PARAM_USER_HOME}"/.ssh
+              chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
+            fi
+
+            # controlla se esiste un vecchio clone e nel caso lo cancella
+            if [ -d "${projectDir}" ]; then
+              echo "clean dir ${projectDir}"
+              rm -r "${projectDir}"
+            fi
+
+            # Clona il repository IaC
+            git clone ${IAC_REPOSITORY_URL} 
+            cd ${projectDir}
+
+            #
+            sed -i "s/^  tag: .*/  tag: \"${latest_tag}\"/" env/dev.values.yaml
+
+            git config --global user.email "tekton@fake.com"
+            git config --global user.name "tekton-update-version-task"
+
+            git add env/dev.values.yaml
+            git commit -m "update tag version (${latest_tag}) in file env/dev.values.yaml"
             git push
+
           else
-              echo "no changes, git repository is up to date"
+            echo "Il file della versione[${versionFile}] esiste, ma non è di sviluppo [beta], skip update iac"
           fi
-  volumes:
-    - name: varlibcontainers
-      emptyDir: {}
-    - name: m2-repository
-      emptyDir: {}
+        else
+          echo "Il file della versione[${versionFile}] non esiste, skip update iac"
+        fi    

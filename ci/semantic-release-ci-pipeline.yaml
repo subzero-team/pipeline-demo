@@ -12,8 +12,15 @@ spec:
   - name: revision
     type: string
     description: The git revision to clone from.    
+  - name: repositoryUrl
+    type: string
+    description: The git repo URL to clone from.
+  - name: iacRepositoryUrl
+    type: string
+    description: The git repo URL to clone from.
   workspaces:
-  - name: shared-data
+  - name: code-source-data
+  - name: iac-source-data
   - name: git-credentials
   - name: maven-settings
   - name: maven-local-m2
@@ -23,7 +30,7 @@ spec:
       name: git-clone
     workspaces:
     - name: output
-      workspace: shared-data
+      workspace: code-source-data
     - name: ssh-directory
       workspace: git-credentials
     params:
@@ -46,7 +53,7 @@ spec:
     - name: maven-settings
       workspace: maven-settings
     - name: source
-      workspace: shared-data
+      workspace: code-source-data
     - name: maven-local-repo
       workspace: maven-local-m2
   - name: semantic-release
@@ -55,7 +62,23 @@ spec:
       name: semantic-release
     workspaces:
     - name: source
-      workspace: shared-data
+      workspace: code-source-data
     - name: ssh-directory
       workspace: git-credentials
-      
+    params:
+    - name: repositoryUrl
+      value: $(params.repositoryUrl)
+  - name: update-version
+    runAfter: ["semantic-release"]
+    taskRef:
+      name: update-version
+    workspaces:
+    - name: code-source
+      workspace: code-source-data
+    - name: iac-source
+      workspace: iac-source-data
+    - name: ssh-directory
+      workspace: git-credentials   
+    params:
+    - name: iacRepositoryUrl
+      value: $(params.iacRepositoryUrl)      

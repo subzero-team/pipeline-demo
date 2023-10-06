@@ -58,10 +58,10 @@ oc -n bgd patch deploy/bgd --type='json' -p='[{"op": "replace", "path": "/spec/t
 
 ## start gke
 ```console
-# creare un cluster in zona us-central1, con nodi di tipo n1-standard1 con 33 GB di disco
+# creare un cluster in zona us-central1, con 3 nodi di tipo n1-standard1 con 33 GB di disco
 gcloud init
 gcloud container clusters list
-gcloud container clusters get-credentials cluster-1 --zone us-central1-f
+gcloud container clusters get-credentials cluster-1 --zone us-central1-c
 ```
 
 
@@ -95,6 +95,19 @@ kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/gi
 kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/maven/0.3/raw 
 
  ```
+
+## install ingress controller on GKE
+ ```console
+kubectl create ns nginx
+helm install nginx ingress-nginx/ingress-nginx --namespace nginx --set rbac.create=true --set controller.publishService.enabled=true
+ ```
+
+## test ingress
+ ```console
+kubectl create deployment hello-app --image=gcr.io/google-samples/hello-app:1.0
+kubectl expose deployment hello-app --port 8080 --target-port 8080
+ ```
+ 
 
 
  ```console

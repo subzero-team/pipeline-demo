@@ -11,17 +11,25 @@ spec:
   workspaces:
   - name: maven-settings
     emptyDir: {}
-  - name: shared-data
+  - name: code-source-data
     persistentvolumeclaim:
       claimName: code-source-pvc
+  - name: iac-source-data
+    persistentvolumeclaim:
+      claimName: iac-source-pvc      
   - name: maven-local-m2
     persistentvolumeclaim:
       claimName: maven-local-m2-pvc
   - name: git-credentials
     secret:
       secretName: git-credentials
+  serviceAccountName: pipeline-service-account
   params:
   - name: repo-url
     value: git@github.com:corollo/demo-app.git
   - name: revision
-    value: main
+    value: pre/beta
+  - name: repositoryUrl
+    value: "https://github.com/corollo/demo-app.git"
+  - name: iacRepositoryUrl
+    value: git@github.com:corollo/demo-app-iac.git
