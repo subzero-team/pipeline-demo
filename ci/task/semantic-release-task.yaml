@@ -21,7 +21,8 @@ spec:
       default: ""
   steps:
     - name: semantic-release
-      image: timbru31/java-node:17-alpine-jdk-18
+      #image: timbru31/java-node:17-alpine-jdk-18
+      image: corollo/semantic-node-git:1.0.0
       workingDir: /workspace/source
       env:
       - name: PARAM_USER_HOME
@@ -54,21 +55,22 @@ spec:
         # echo "test docker"
         # docker version
 
-        echo "# semantic release: ls -al ."
-        ls -al .
-        echo "# install git"
-        apk update
-        apk add git
+        # echo "# install git"
+        # apk update
+        # apk add git
         
         echo "check git status on pre/beta"
         git checkout pre/beta
         git status
 
-        echo "# install docker"
-        wget -q https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz -O /tmp/docker.tar.gz
-        tar -xzf /tmp/docker.tar.gz -C /tmp/
-        cp /tmp/docker/docker* /usr/local/bin
-        chmod +x /usr/local/bin/docker*
+        #echo "check docker version"
+        #docker version
+
+        # echo "# install docker"
+        # wget -q https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz -O /tmp/docker.tar.gz
+        # tar -xzf /tmp/docker.tar.gz -C /tmp/
+        # cp /tmp/docker/docker* /usr/local/bin
+        # chmod +x /usr/local/bin/docker*
 
         export GITHUB_TOKEN="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"
         export CI=true
@@ -77,13 +79,14 @@ spec:
         export CI_REGISTRY=corollo
         export CI_REGISTRY_IMAGE=$CI_REGISTRY/demo-app
 
-        #echo "# docker login on $CI_REGISTRY"
-        #docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-        #echo "# docker build $CI_REGISTRY_IMAGE:latest "
-        #docker build -t $CI_REGISTRY_IMAGE:latest .
+        # echo "# docker login on $CI_REGISTRY"
+        # docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        # echo "# docker build $CI_REGISTRY_IMAGE:latest "
+        # docker build -t $CI_REGISTRY_IMAGE:latest .
 
         echo "# install semantic plugin"
         npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
+        
         echo "# run semantic-release "
         npx semantic-release@20 --repository-url ${REPOSITORY_URL}
         echo "end"

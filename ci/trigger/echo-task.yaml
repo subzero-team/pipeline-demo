@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: echo
+spec:
+  params:
+    - name: gitRepository
+    - name: commits         
+  steps:  
+    - name: clone-iac-repo
+      image: alpine
+      env:
+      - name: gitRepository
+        value: $(params.gitRepository)
+      - name: commits
+        value: $(params.commits)             
+      script: |
+        #!/usr/bin/env sh
+        #set -x
+
+        echo "# gitRepository: ${gitRepository}"
+        echo "# commits: ${commits}"

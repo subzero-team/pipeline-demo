@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: echo-taskrun-  
+spec:
+  taskRef:
+    name: echo  
+  params:
+  - name: gitRepository
+    value: "test-repo"
+  - name: commits     
+    value: "test-commit"

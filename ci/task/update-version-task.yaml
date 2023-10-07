@@ -14,18 +14,7 @@ spec:
       description: Absolute path to the user's home directory.
       type: string
       default: "/root"      
-  steps:
-    # - name: get-latest-tag
-    #   image: alpine/git
-    #   workingDir: /workspace/code-source
-    #   script: |
-    #     #!/usr/bin/env sh
-    #     set -x
-    #     ls -l
-    #     # Recupera l'ultimo tag
-    #     latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-    #     echo "Latest Tag: $latest_tag"
-    #     echo "export latest_tag=$latest_tag" > /workspace/iac-source/latest_tag.env      
+  steps:  
     - name: clone-iac-repo
       image: alpine/git
       workingDir: /workspace/iac-source

@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: echo-pipeline
+spec:
+  description: | 
+    This pipeline run a echo task 
+  params:
+    - name: gitRepository
+    - name: commits      
+  tasks:
+  - name: echo-task
+    taskRef:
+      name: echo
+    params:
+    - name: gitRepository
+      value: $(params.gitRepository)
+    - name: commits
+      value: $(params.commits)
+  

@@ -1,0 +1,27 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: trigger-demo-template
+  annotations:
+    triggers.tekton.dev/old-escape-quotes: "true"
+spec:
+  params:
+    - name: commits
+      description: The commits which got pushed
+    - name: gitRepository
+      description: The git repository that hosts context
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: echo-pipeline-run-
+        annotations:
+          tekton.dev/gitURL: "$(tt.params.gitRepository)"
+      spec:
+        pipelineRef:
+          name: echo-pipeline
+        params:
+          - name: commits
+            value: "$(tt.params.commits)"
+          - name: gitRepository
+            value: "$(tt.params.gitRepository)"

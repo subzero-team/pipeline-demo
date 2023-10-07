@@ -1,4 +1,4 @@
-FROM timbru31/java-node:17-alpine-jdk-18
+FROM node:18-alpine
 
 RUN echo "# install git" && \
         apk update && \
@@ -9,3 +9,7 @@ RUN echo "# install docker" && \
         tar -xzf /tmp/docker.tar.gz -C /tmp/ && \
         cp /tmp/docker/docker* /usr/local/bin && \
         chmod +x /usr/local/bin/docker*
+
+# RUN echo "# install semantic plugins" && \
+#         npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
+        

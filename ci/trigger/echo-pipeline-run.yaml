@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: echo-pipeline-run-
+spec:
+  pipelineRef:
+    name: echo-pipeline
+  params:
+  - name: gitRepository
+    value: "test-repo"
+  - name: commits     
+    value: "test-commit"

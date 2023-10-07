@@ -59,7 +59,7 @@ oc -n bgd patch deploy/bgd --type='json' -p='[{"op": "replace", "path": "/spec/t
 ## start gke
 ```console
 # creare un cluster in zona us-central1, con 3 nodi di tipo n1-standard1 con 33 GB di disco
-gcloud init
+gcloud init --skip-diagnostics
 gcloud container clusters list
 gcloud container clusters get-credentials cluster-1 --zone us-central1-c
 ```
@@ -81,6 +81,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl get all -n tekton-pipelines
 kubectl get all -n tekton-pipelines-resolvers
+kubectl patch svc tekton-dashboard -n tekton-pipelines -p '{"spec": {"type": "LoadBalancer"}}'
 
 # app
 k create namespace demo
@@ -90,10 +91,29 @@ k config set-context --current --namespace=demo
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
 kubectl -n tekton-pipelines port-forward service/tekton-dashboard 9097:9097
 
-# common task
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.9/git-clone.yaml
-kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/maven/0.3/raw 
+kubectl -n demo apply -f ci/task
+kubectl -n demo apply -f ci/pvc
+kubectl -n demo apply -f ci/pipeline-service-account.yaml
+kubectl -n demo apply -f ci/secrets
+kubectl -n demo apply -f ci/semantic-release-ci-pipeline.yaml
 
+kubectl edit configmap feature-flags -n tekton-pipelines
+# Look for disable-affinity-assistant. Change its value to true.
+
+kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
+kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/latest/interceptors.yaml
+
+# check instllation
+kubectl get pods --namespace tekton-pipelines --watch
+
+# trigger
+kubectl create ns triggers-demo
+
+# effettuare il load delle immagini locale in minikube
+minikube image load corollo/semantic-node-git:1.0.0
+minikube cache add corollo/node-hello:1.0.0
+minikube cache reload
+minikube cache list
  ```
 
 ## install ingress controller on GKE
