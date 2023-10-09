@@ -50,27 +50,9 @@ spec:
           chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
         fi
 
-        # echo "test git"
-        # git status
-        # echo "test docker"
-        # docker version
-
-        # echo "# install git"
-        # apk update
-        # apk add git
-        
-        echo "check git status on pre/beta"
-        git checkout pre/beta
+        echo "check git status"
+        #git checkout pre/beta
         git status
-
-        #echo "check docker version"
-        #docker version
-
-        # echo "# install docker"
-        # wget -q https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz -O /tmp/docker.tar.gz
-        # tar -xzf /tmp/docker.tar.gz -C /tmp/
-        # cp /tmp/docker/docker* /usr/local/bin
-        # chmod +x /usr/local/bin/docker*
 
         export GITHUB_TOKEN="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"
         export CI=true
@@ -85,7 +67,7 @@ spec:
         # docker build -t $CI_REGISTRY_IMAGE:latest .
 
         echo "# install semantic plugin"
-        npm install @conveyal/maven-semantic-release @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
+        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
         
         echo "# run semantic-release "
         npx semantic-release@20 --repository-url ${REPOSITORY_URL}

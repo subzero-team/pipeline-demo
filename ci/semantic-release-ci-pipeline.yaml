@@ -22,8 +22,6 @@ spec:
   - name: code-source-data
   - name: iac-source-data
   - name: git-credentials
-  - name: maven-settings
-  - name: maven-local-m2
   tasks:
   - name: fetch-source
     taskRef:
@@ -38,26 +36,16 @@ spec:
       value: $(params.repo-url)
     - name: revision
       value: $(params.revision)
-  - name: maven-run
+  - name: node-build
     taskRef:
-      name: maven
+      name: node-build
     runAfter:
       - fetch-source
-    params:
-    - name: GOALS
-      value:
-        - -DskipTests
-        - clean
-        - package
     workspaces:
-    - name: maven-settings
-      workspace: maven-settings
     - name: source
-      workspace: code-source-data
-    - name: maven-local-repo
-      workspace: maven-local-m2
+      workspace: code-source-data    
   - name: semantic-release
-    runAfter: ["maven-run"]
+    runAfter: ["node-build"]
     taskRef:
       name: semantic-release
     workspaces:
