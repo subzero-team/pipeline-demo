@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: demo-app-dev
+  name: demo-app-test
 spec:
   destination:
-    namespace: demo-dev
+    namespace: demo-test
     server: https://kubernetes.default.svc
   project: default
   source:
     helm:
       valueFiles:
-        - env/dev.values.yaml
+        - env/test.values.yaml
     path: . 
     repoURL: https://github.com/corollo/demo-app-iac
     targetRevision: main
