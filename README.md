@@ -60,6 +60,9 @@ oc -n bgd patch deploy/bgd --type='json' -p='[{"op": "replace", "path": "/spec/t
 ```console
 # creare un cluster in zona us-central1, con 3 nodi di tipo n1-standard1 con 33 GB di disco
 gcloud init --skip-diagnostics
+
+gcloud beta container --project "student-00331" clusters create "cluster-1" --zone "us-central1-c" --no-enable-basic-auth --cluster-version "1.27.3-gke.100" --release-channel "regular" --machine-type "n1-standard-1" --disk-size "30"  --num-nodes "3" --node-locations "us-central1-c"
+
 gcloud container clusters list
 gcloud container clusters get-credentials cluster-1 --zone us-central1-c
 ```
@@ -111,7 +114,7 @@ kubectl create ns triggers-demo
 
 # effettuare il load delle immagini locale in minikube
 minikube image load corollo/semantic-node-git:1.0.0
-minikube cache add corollo/node-hello:1.0.0
+minikube cache add corollo/demo-app:1.0.0
 minikube cache reload
 minikube cache list
  ```
