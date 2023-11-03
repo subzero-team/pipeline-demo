@@ -12,7 +12,7 @@ spec:
       valueFiles:
         - env/dev.values.yaml
     path: . 
-    repoURL: https://github.com/corollo/demo-app-iac
+    repoURL: https://github.com/subzero-team/demo-app-iac
     targetRevision: main
   syncPolicy:
     automated:
