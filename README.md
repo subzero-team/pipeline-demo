@@ -1,6 +1,6 @@
 # Demo
 
-![arcitettura-demo](img/arch-demo.jpeg)
+![arcitettura-demo](doc/arch-demo.jpeg)
 
 
 
@@ -58,12 +58,13 @@ oc -n bgd patch deploy/bgd --type='json' -p='[{"op": "replace", "path": "/spec/t
 
 ## start gke
 ```console
-# creare un cluster in zona us-central1, con 3 nodi di tipo n1-standard1 con 33 GB di disco
+# login with gcp credentials
 gcloud init --skip-diagnostics
-
-gcloud beta container --project "student-00331" clusters create "cluster-1" --zone "us-central1-c" --no-enable-basic-auth --cluster-version "1.27.3-gke.100" --release-channel "regular" --machine-type "n1-standard-1" --disk-size "30"  --num-nodes "3" --node-locations "us-central1-c"
-
+# creare un cluster in zona us-central1, con 3 nodi di tipo n1-standard1 con 33 GB di disco
+gcloud beta container clusters create "cluster-1" --zone "us-central1-c" --no-enable-basic-auth --cluster-version "1.27.3-gke.100" --release-channel "regular" --machine-type "n1-standard-1" --disk-size "30"  --num-nodes "3" --node-locations "us-central1-c"
+# wait for the cluster creation
 gcloud container clusters list
+# configure kubectl with the cluster cretendials
 gcloud container clusters get-credentials cluster-1 --zone us-central1-c
 ```
 
@@ -132,10 +133,3 @@ kubectl expose deployment hello-app --port 8080 --target-port 8080
  ```
  
 
-
- ```console
- kubectl create secret docker-registry dockerhub-secret \
-  --docker-server=https://index.docker.io/v1/ \
-  --docker-username=corollo \
-  --docker-password=dckr_pat_q94cDdf7jjy8rr-ofAgcUrfyf3c
- ```
