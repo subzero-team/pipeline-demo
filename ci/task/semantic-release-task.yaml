@@ -63,6 +63,14 @@ spec:
 
         export CI=true
 
+        export CI_REGISTRY_USER=corollo
+        export CI_REGISTRY_PASSWORD=test
+        export CI_REGISTRY=corollo
+        export CI_REGISTRY_IMAGE=$CI_REGISTRY/demo-app
+
+        echo "# docker build $CI_REGISTRY_IMAGE:latest "
+        docker build -t $CI_REGISTRY_IMAGE:latest .
+
         echo "# install semantic plugin"
         npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
         

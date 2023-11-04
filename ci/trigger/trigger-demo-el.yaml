@@ -8,4 +8,4 @@ spec:
     - triggerRef: github-listener
   resources:
     kubernetesResource:
-      serviceType: LoadBalancer
+      serviceType: ClusterIP

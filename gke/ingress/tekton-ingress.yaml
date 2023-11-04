@@ -5,9 +5,10 @@ metadata:
   namespace: tekton-pipelines
 spec:
   rules:
-  - http:
+  - host: "tekton-console.com"
+    http:
       paths:
-      - path: /tekton
+      - path: /
         pathType: Prefix
         backend:
           service:
