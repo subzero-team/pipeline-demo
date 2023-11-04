@@ -18,6 +18,9 @@ spec:
   - name: iacRepositoryUrl
     type: string
     description: The git repo URL to clone from.
+  - name: githubToken
+    type: string
+    description: github token
   workspaces:
   - name: code-source-data
   - name: iac-source-data
@@ -56,6 +59,8 @@ spec:
     params:
     - name: repositoryUrl
       value: $(params.repositoryUrl)
+    - name: githubToken
+      value: $(params.githubToken)
   - name: update-version
     runAfter: ["semantic-release"]
     taskRef:

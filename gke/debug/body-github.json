@@ -30,10 +30,10 @@
             "type": "User",
             "site_admin": false
         },
-        "html_url": "https://github.com/corollo/demo-app",
+        "html_url": "https://github.com/subzero-team/demo-app",
         "description": "Demo App repository",
         "fork": false,
-        "url": "https://github.com/corollo/demo-app",
+        "url": "https://github.com/subzero-team/demo-app",
         "forks_url": "https://api.github.com/repos/corollo/demo-app/forks",
         "keys_url": "https://api.github.com/repos/corollo/demo-app/keys{/key_id}",
         "collaborators_url": "https://api.github.com/repos/corollo/demo-app/collaborators{/collaborator}",
@@ -75,8 +75,8 @@
         "pushed_at": 1696631724,
         "git_url": "git://github.com/corollo/demo-app.git",
         "ssh_url": "git@github.com:corollo/demo-app.git",
-        "clone_url": "https://github.com/corollo/demo-app.git",
-        "svn_url": "https://github.com/corollo/demo-app",
+        "clone_url": "https://github.com/subzero-team/demo-app.git",
+        "svn_url": "https://github.com/subzero-team/demo-app",
         "homepage": null,
         "size": 34,
         "stargazers_count": 0,
@@ -134,7 +134,7 @@
     "deleted": false,
     "forced": false,
     "base_ref": null,
-    "compare": "https://github.com/corollo/demo-app/compare/f4834006b925...0fd8ae711860",
+    "compare": "https://github.com/subzero-team/demo-app/compare/f4834006b925...0fd8ae711860",
     "commits": [
         {
             "id": "0fd8ae711860efe33a84a7bb0ef1bfd53154e0d0",
@@ -142,7 +142,7 @@
             "distinct": true,
             "message": "Update README.md",
             "timestamp": "2023-10-07T00:35:24+02:00",
-            "url": "https://github.com/corollo/demo-app/commit/0fd8ae711860efe33a84a7bb0ef1bfd53154e0d0",
+            "url": "https://github.com/subzero-team/demo-app/commit/0fd8ae711860efe33a84a7bb0ef1bfd53154e0d0",
             "author": {
                 "name": "Luigi Corollo",
                 "email": "corollo@gmail.com",
@@ -166,7 +166,7 @@
         "distinct": true,
         "message": "Update README.md",
         "timestamp": "2023-10-07T00:35:24+02:00",
-        "url": "https://github.com/corollo/demo-app/commit/0fd8ae711860efe33a84a7bb0ef1bfd53154e0d0",
+        "url": "https://github.com/subzero-team/demo-app/commit/0fd8ae711860efe33a84a7bb0ef1bfd53154e0d0",
         "author": {
             "name": "Luigi Corollo",
             "email": "corollo@gmail.com",

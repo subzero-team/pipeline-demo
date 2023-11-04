@@ -15,10 +15,10 @@ spec:
   serviceAccountName: pipeline-service-account
   params:
   - name: repo-url
-    value: git@github.com:corollo/demo-app.git
+    value: git@github.com:subzero-team/demo-app.git
   - name: revision
     value: main
   - name: repositoryUrl
-    value: "https://github.com/corollo/demo-app.git"
+    value: "https://github.com/subzero-team/demo-app.git"
   - name: iacRepositoryUrl
-    value: git@github.com:corollo/demo-app-iac.git    
+    value: git@github.com:subzero-team/demo-app-iac.git    

@@ -7,8 +7,8 @@ spec:
   rules:
   - http:
       paths:
-      - path: /
-        pathType: ImplementationSpecific
+      - path: /tekton
+        pathType: Prefix
         backend:
           service:
             name: tekton-dashboard
