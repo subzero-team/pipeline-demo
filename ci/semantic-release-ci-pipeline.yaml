@@ -25,6 +25,7 @@ spec:
   - name: code-source-data
   - name: iac-source-data
   - name: git-credentials
+  - name: docker-storage
   tasks:
   - name: fetch-source
     taskRef:
@@ -56,6 +57,8 @@ spec:
       workspace: code-source-data
     - name: ssh-directory
       workspace: git-credentials
+    - name: docker-storage
+      workspace: docker-storage      
     params:
     - name: repositoryUrl
       value: $(params.repositoryUrl)

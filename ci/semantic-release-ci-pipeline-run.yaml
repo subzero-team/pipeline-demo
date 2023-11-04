@@ -15,6 +15,9 @@ spec:
   - name: git-credentials
     secret:
       secretName: git-credentials
+  - name: docker-storage      
+    persistentvolumeclaim:
+      claimName: docker-storage-pvc  
   serviceAccountName: pipeline-service-account
   params:
   - name: repo-url
