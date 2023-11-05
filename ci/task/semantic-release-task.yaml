@@ -10,7 +10,7 @@ spec:
     - name: verbose
       description: Log the commands that are executed during the operation.
       type: string
-      default: "true"
+      default: "false"
     - name: userHome
       description: Absolute path to the user's home directory.
       type: string
@@ -23,6 +23,22 @@ spec:
       description: github token
       type: string
       default: ""
+    - name: ciRegistry
+      description: ci registry base url
+      type: string
+      default: ""
+    - name: ciRegistryUser
+      description: ci registry username
+      type: string
+      default: ""
+    - name: ciRegistryPass
+      description: ci registry user password/token
+      type: string
+      default: ""      
+    - name: ciImageName
+      description: ci registry Image
+      type: string
+      default: "demo-app"       
   steps:
     - name: semantic-release
       image: corollo/semantic-node-git:1.0.0
@@ -40,8 +56,25 @@ spec:
         value: $(params.repositoryUrl)
       - name: GITHUB_TOKEN
         value: $(params.githubToken)
+      - name: CI
+        value: 'true'
       - name: DOCKER_HOST
-        value: tcp://localhost:2375                
+        value: tcp://localhost:2376
+      - name: DOCKER_TLS_VERIFY
+        value: '1'
+      - name: DOCKER_CERT_PATH
+        value: /certs/client
+      - name: CI_REGISTRY
+        value: $(params.ciRegistry)
+      - name: CI_IMAGE_NAME
+        value: $(params.ciImageName)
+      - name: CI_REGISTRY_USER
+        value: $(params.ciRegistryUser)
+      envFrom:
+        - secretRef:
+            name: registry-pass-secrets
+        - secretRef:
+            name: git-token-secrets
       script: |
         #!/usr/bin/env sh
         set -eu
@@ -56,24 +89,48 @@ spec:
           chmod 700 "${PARAM_USER_HOME}"/.ssh
           chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
         fi
+         
+        export CI_REGISTRY_IMAGE=$CI_REGISTRY/$CI_IMAGE_NAME
 
-        echo "check git status"
-        #git checkout pre/beta
-        git status
-
-        export CI=true
-
-        export CI_REGISTRY_USER=corollo
-        export CI_REGISTRY_PASSWORD=test
-        export CI_REGISTRY=corollo
-        export CI_REGISTRY_IMAGE=$CI_REGISTRY/demo-app
-
-        echo "# docker build $CI_REGISTRY_IMAGE:latest "
+        echo "# run docker login on dockerhub user $CI_REGISTRY_USER"
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASS
+        echo "# run docker build $CI_REGISTRY_IMAGE:latest "
         docker build -t $CI_REGISTRY_IMAGE:latest .
 
-        echo "# install semantic plugin"
-        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save        
-        
+        echo "# run install semantic plugin"
+        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save
         echo "# run semantic-release "
         npx semantic-release@20 --repository-url ${REPOSITORY_URL}
+
+        echo "# run docker push $CI_REGISTRY_IMAGE:latest "
+        docker push $CI_REGISTRY_IMAGE:latest
+
         echo "end"
+      volumeMounts:
+        - mountPath: /certs/client
+          name: dind-certs
+  sidecars:
+    - image: docker:dind
+      name: server
+      args:
+        - --storage-driver=vfs
+        - --userland-proxy=false
+        - --debug
+      securityContext:
+        privileged: true
+      env:
+      # Write generated certs to the path shared with the client.
+      - name: DOCKER_TLS_CERTDIR
+        value: /certs
+      volumeMounts:
+      - mountPath: /certs/client
+        name: dind-certs
+      # Wait for the dind daemon to generate the certs it will share with the
+      # client.
+      readinessProbe:
+        periodSeconds: 1
+        exec:
+          command: ['ls', '/certs/client/ca.pem']
+  volumes:
+  - name: dind-certs
+    emptyDir: {}

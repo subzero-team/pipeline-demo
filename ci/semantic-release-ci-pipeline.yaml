@@ -7,20 +7,29 @@ spec:
     This pipeline clones a git repo, then echoes the README file to the stout.
   params:
   - name: repo-url
-    type: string
     description: The git repo URL to clone from.
+    type: string    
   - name: revision
+    description: The git revision to clone from.
     type: string
-    description: The git revision to clone from.    
   - name: repositoryUrl
-    type: string
     description: The git repo URL to clone from.
+    type: string
   - name: iacRepositoryUrl
+    description: The iac git repo URL to clone from.
     type: string
-    description: The git repo URL to clone from.
-  - name: githubToken
+  - name: ciRegistry
+    description: ci registry base url
     type: string
-    description: github token
+    default: ""
+  - name: ciRegistryUser
+    description: ci registry username
+    type: string
+    default: ""    
+  - name: ciImageName
+    description: ci registry Image
+    type: string
+    default: "demo-app"      
   workspaces:
   - name: code-source-data
   - name: iac-source-data
@@ -60,8 +69,10 @@ spec:
     params:
     - name: repositoryUrl
       value: $(params.repositoryUrl)
-    - name: githubToken
-      value: $(params.githubToken)
+    - name: ciRegistry
+      value: $(params.ciRegistry)
+    - name: ciRegistryUser
+      value: $(params.ciRegistryUser)
   - name: update-version
     runAfter: ["semantic-release"]
     taskRef:

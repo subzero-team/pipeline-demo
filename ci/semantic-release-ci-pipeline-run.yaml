@@ -28,5 +28,7 @@ spec:
     value: https://github.com/subzero-team/demo-app.git
   - name: iacRepositoryUrl
     value: git@github.com:subzero-team/demo-app-iac.git
-  - name: githubToken
-    value: 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
+  - name: ciRegistry
+    value: corollo
+  - name: ciRegistryUser
+    value: corollo
