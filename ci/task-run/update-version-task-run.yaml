@@ -5,17 +5,18 @@ metadata:
 spec:
   taskRef:
     name: update-version
+  serviceAccountName: pipeline-service-account
+  params:
+  - name: iacRepositoryUrl
+    value: git@github.com:subzero-team/demo-app-iac.git    
   workspaces:
   - name: code-source
     persistentvolumeclaim:
       claimName: code-source-pvc
-  - name: ssh-directory
-    secret:
-      secretName: git-credentials
   - name: iac-source
     persistentvolumeclaim:
-      claimName: iac-source-pvc     
-  serviceAccountName: pipeline-service-account
-  params:
-  - name: iacRepositoryUrl
-    value: git@github.com:corollo/demo-app-iac.git    
+      claimName: iac-source-pvc 
+  - name: ssh-directory
+    secret:
+      secretName: git-credentials          
+

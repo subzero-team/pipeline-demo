@@ -13,8 +13,6 @@ spec:
       script: |
         #!/usr/bin/env sh
         set -eu
-        set -x
-
-        ls -al
-
+        
+        echo "# node build"
         npm ci

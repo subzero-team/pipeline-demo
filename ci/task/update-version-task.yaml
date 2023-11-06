@@ -3,19 +3,23 @@ kind: Task
 metadata:
   name: update-version
 spec:
-  workspaces:
-    - name: code-source
-    - name: iac-source
-    - name: ssh-directory
   params:
     - name: iacRepositoryUrl
       description: Git repository containing manifest files to update
     - name: userHome
       description: Absolute path to the user's home directory.
       type: string
-      default: "/root"      
+      default: "/root"
+    - name: projectDir
+      description: Relative path to the project's directory.
+      type: string
+      default: "demo-app-iac"            
+  workspaces:
+    - name: code-source
+    - name: iac-source
+    - name: ssh-directory  
   steps:  
-    - name: clone-iac-repo
+    - name: update-version
       image: alpine/git
       workingDir: /workspace/iac-source
       env:
@@ -26,12 +30,13 @@ spec:
       - name: WORKSPACE_SSH_DIRECTORY_BOUND
         value: $(workspaces.ssh-directory.bound)
       - name: WORKSPACE_SSH_DIRECTORY_PATH
-        value: $(workspaces.ssh-directory.path)         
+        value: $(workspaces.ssh-directory.path)
+      - name: PROJECT_DIR
+        value: $(params.projectDir)
       script: |
         #!/usr/bin/env sh
         set -x
 
-        export projectDir=./demo-app-iac
         export versionFile=/workspace/code-source/latest_tag.env
 
         # controllo se esiste il file della versione
@@ -50,14 +55,14 @@ spec:
             fi
 
             # controlla se esiste un vecchio clone e nel caso lo cancella
-            if [ -d "${projectDir}" ]; then
-              echo "clean dir ${projectDir}"
-              rm -r "${projectDir}"
+            if [ -d "${PROJECT_DIR}" ]; then
+              echo "clean dir ${PROJECT_DIR}"
+              rm -r "${PROJECT_DIR}"
             fi
 
             # Clona il repository IaC
             git clone ${IAC_REPOSITORY_URL} 
-            cd ${projectDir}
+            cd ${PROJECT_DIR}
 
             #
             sed -i "s/^  tag: .*/  tag: \"${latest_tag}\"/" env/dev.values.yaml

@@ -64,8 +64,6 @@ spec:
     workspaces:
     - name: source
       workspace: code-source-data
-    - name: ssh-directory
-      workspace: git-credentials 
     params:
     - name: repositoryUrl
       value: $(params.repositoryUrl)
@@ -77,13 +75,13 @@ spec:
     runAfter: ["semantic-release"]
     taskRef:
       name: update-version
+    params:
+    - name: iacRepositoryUrl
+      value: $(params.iacRepositoryUrl)
     workspaces:
     - name: code-source
       workspace: code-source-data
     - name: iac-source
       workspace: iac-source-data
     - name: ssh-directory
-      workspace: git-credentials   
-    params:
-    - name: iacRepositoryUrl
-      value: $(params.iacRepositoryUrl)      
+      workspace: git-credentials         

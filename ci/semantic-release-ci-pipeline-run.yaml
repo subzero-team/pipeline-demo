@@ -4,20 +4,7 @@ metadata:
   generateName: semantic-release-ci-
 spec:
   pipelineRef:
-    name: semantic-release-ci
-  workspaces:
-  - name: code-source-data
-    persistentvolumeclaim:
-      claimName: code-source-pvc
-  - name: iac-source-data
-    persistentvolumeclaim:
-      claimName: iac-source-pvc      
-  - name: git-credentials
-    secret:
-      secretName: git-credentials
-  - name: docker-storage      
-    persistentvolumeclaim:
-      claimName: docker-storage-pvc  
+    name: semantic-release-ci 
   serviceAccountName: pipeline-service-account
   params:
   - name: repo-url
@@ -32,3 +19,16 @@ spec:
     value: corollo
   - name: ciRegistryUser
     value: corollo
+  workspaces:
+  - name: code-source-data
+    persistentvolumeclaim:
+      claimName: code-source-pvc
+  - name: iac-source-data
+    persistentvolumeclaim:
+      claimName: iac-source-pvc      
+  - name: git-credentials
+    secret:
+      secretName: git-credentials
+  - name: docker-storage
+    persistentvolumeclaim:
+      claimName: docker-storage-pvc     
