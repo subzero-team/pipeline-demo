@@ -10,7 +10,7 @@ spec:
   - name: repo-url
     value: git@github.com:subzero-team/demo-app.git
   - name: revision
-    value: main
+    value: pre/beta
   - name: repositoryUrl
     value: https://github.com/subzero-team/demo-app.git
   - name: iacRepositoryUrl
