@@ -4,6 +4,10 @@ metadata:
   name: update-version
 spec:
   params:
+    - name: verbose
+      description: Log the commands that are executed during the operation.
+      type: string
+      default: "false"  
     - name: iacRepositoryUrl
       description: Git repository containing manifest files to update
     - name: userHome
@@ -23,6 +27,8 @@ spec:
       image: alpine/git
       workingDir: /workspace/iac-source
       env:
+      - name: PARAM_VERBOSE
+        value: $(params.verbose)      
       - name: IAC_REPOSITORY_URL
         value: $(params.iacRepositoryUrl)
       - name: PARAM_USER_HOME
@@ -35,7 +41,11 @@ spec:
         value: $(params.projectDir)
       script: |
         #!/usr/bin/env sh
-        set -x
+        set -eu
+
+        if [ "${PARAM_VERBOSE}" = "true" ] ; then
+          set -x
+        fi
 
         export versionFile=/workspace/code-source/latest_tag.env
 
