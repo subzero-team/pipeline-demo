@@ -2,6 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: demo-app-dev
+  annotations:
+    notifications.argoproj.io/subscribe.on-deployed.slack: demo-app-deploy
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: demo-app-deploy
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: demo-app-deploy
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: demo-dev
