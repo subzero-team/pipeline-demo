@@ -81,9 +81,9 @@ spec:
         docker build -t $CI_REGISTRY_IMAGE:latest .
         
         echo "\n# run install semantic plugin"
-        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --force --no-save
+        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --no-save
         echo "# run semantic-release "
-        npx semantic-release@20 --repository-url ${REPOSITORY_URL}
+        npx semantic-release@22 --repository-url ${REPOSITORY_URL}
 
         echo "# end"
       volumeMounts:
