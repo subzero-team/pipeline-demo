@@ -25,11 +25,7 @@ spec:
     - name: ciRegistryPass
       description: ci registry user password/token
       type: string
-      default: ""      
-    - name: ciImageName
-      description: ci registry Image
-      type: string
-      default: "demo-app"       
+      default: ""          
   steps:
     - name: semantic-release
       image: corollo/semantic-node-git:1.0.0
@@ -49,8 +45,6 @@ spec:
         value: /certs/client
       - name: CI_REGISTRY
         value: $(params.ciRegistry)
-      - name: CI_IMAGE_NAME
-        value: $(params.ciImageName)
       - name: CI_REGISTRY_USER
         value: $(params.ciRegistryUser)
       envFrom:
@@ -69,20 +63,14 @@ spec:
         # fix remove newline
         export GITHUB_TOKEN=${GITHUB_TOKEN//$'\n'/}
         export CI_REGISTRY_PASS=${CI_REGISTRY_PASS//$'\n'/}
-        export CI_REGISTRY_IMAGE=$CI_REGISTRY/$CI_IMAGE_NAME
-
-        echo "# run docker login on dockerhub user $CI_REGISTRY_USER"
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASS
-
-        #echo "# run docker images"
-        #docker images
-
-        echo "# run docker build $CI_REGISTRY_IMAGE:latest "
-        docker build -t $CI_REGISTRY_IMAGE:latest .
         
-        echo "\n# run install semantic plugin"
-        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits --no-save
-        echo "# run semantic-release "
+        echo "# run docker login on registry with user $CI_REGISTRY_USER"
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASS
+        
+        echo -e "\n# run install semantic plugin"
+        npm install @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github @semantic-release/exec @semantic-release/changelog conventional-changelog-conventionalcommits @codedependant/semantic-release-docker --no-save
+        
+        echo -e "\n# run semantic-release "
         npx semantic-release@22 --repository-url ${REPOSITORY_URL}
 
         echo "# end"
